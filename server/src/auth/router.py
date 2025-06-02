@@ -18,6 +18,7 @@ router = APIRouter(
     tags=['Auth 🔒'],
 )
 
+
 @router.post('/registration', status_code=status.HTTP_201_CREATED)
 async def registration(db: db_dependency, user: RegisterUser) -> None:
     try:
@@ -37,6 +38,7 @@ async def registration(db: db_dependency, user: RegisterUser) -> None:
         content={'msg': 'User successfully registered'},
         status_code=status.HTTP_201_CREATED,
     )
+
 
 @router.post('/login', status_code=status.HTTP_200_OK)
 async def login(
@@ -87,6 +89,13 @@ async def login(
     )
     return response
 
-@router.get('/secured-place')
-async def top_secret(user: user_dependency):
-    return {'user': user, 'msg': 'you entered'}
+
+@router.get('/is-authorized', status_code=status.HTTP_200_OK)
+async def check_auth(_: user_dependency):
+    return JSONResponse(
+        content={
+            'msg': 'You are authorized',
+            'auth': True,
+        },
+        status_code=status.HTTP_200_OK
+    )
