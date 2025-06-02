@@ -1,10 +1,16 @@
-from fastapi import APIRouter, HTTPException, status
-from fastapi.responses import JSONResponse
+import datetime
 
-from server.src.auth.service import register_user
-from server.src.auth.schemas import RegisterUser
+from fastapi import APIRouter, HTTPException, status, Depends, Cookie
+from fastapi.responses import JSONResponse
+from fastapi.security import OAuth2PasswordRequestForm
+
+from server.src.auth.service import register_user, login_user
+from server.src.auth.schemas import RegisterUser, AccessTokenPayload
 from server.src.auth import exceptions
+from server.src.security.jwt import create_access_token, create_refresh_token
 from server.src.database import db_dependency
+from server.src.config import settings
+from server.src.auth.dependencies import user_dependency
 
 
 router = APIRouter(
@@ -13,7 +19,7 @@ router = APIRouter(
 )
 
 @router.post('/registration', status_code=status.HTTP_201_CREATED)
-async def registration(db: db_dependency, user: RegisterUser):
+async def registration(db: db_dependency, user: RegisterUser) -> None:
     try:
         await register_user(
             login=user.login,
@@ -31,3 +37,56 @@ async def registration(db: db_dependency, user: RegisterUser):
         content={'msg': 'User successfully registered'},
         status_code=status.HTTP_201_CREATED,
     )
+
+@router.post('/login', status_code=status.HTTP_200_OK)
+async def login(
+    db: db_dependency,
+    credentials: OAuth2PasswordRequestForm = Depends(OAuth2PasswordRequestForm),
+) -> None:
+    try:
+        user = await login_user(
+            login=credentials.username,
+            password=credentials.password,
+            db=db,
+        )
+    except exceptions.IncorrectCredentialsException as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e),
+        )
+    except exceptions.DeactivatedUserException as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e),
+        )
+    now = datetime.datetime.now(datetime.UTC)
+    access_token_payload = AccessTokenPayload(
+        email=user.email,
+        role=user.role,
+    )
+    access_token = await create_access_token(
+        user_id=user.id,
+        now=now,
+        payload=access_token_payload.model_dump(),
+    )
+    refresh_token = await create_refresh_token(
+        user_id=user.id,
+        now=now,   
+    )
+    response = JSONResponse(
+        content={'msg': 'Successful login'},
+        status_code=status.HTTP_200_OK,
+    )
+    response.set_cookie(
+        key=settings.JWT_ACCESS_TOKEN_COOKIE_NAME,
+        value=access_token,
+    )
+    response.set_cookie(
+        key=settings.JWT_REFRESH_TOKEN_COOKIE_NAME,
+        value=refresh_token,
+    )
+    return response
+
+@router.get('/secured-place')
+async def top_secret(user: user_dependency):
+    return {'user': user, 'msg': 'you entered'}
