@@ -10,6 +10,7 @@ from server.src import router
 async def lifespan(app: FastAPI):
     await create_tables()
     yield
+    await drop_tables()
 
 app = FastAPI(
     title='PromptBOX API',
