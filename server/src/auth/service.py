@@ -7,6 +7,15 @@ from server.src.models import OrmUser
 from server.src.auth import exceptions
 
 
+async def get_user(user_id: int, db: AsyncSession) -> OrmUser:
+    query = select(OrmUser).where(OrmUser.id == user_id)
+    result = await db.execute(query)
+    user = result.scalar_one_or_none()
+    if not user:
+        raise exceptions.UserNotFoundException()
+    return user
+
+
 async def register_user(
     login: str, 
     password: str, 
@@ -27,6 +36,7 @@ async def register_user(
         await db.rollback()
         raise exceptions.UserAlreadyExistsException()
     
+
 async def login_user(
     login: str,
     password: str,

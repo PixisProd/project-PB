@@ -6,11 +6,12 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from server.src.auth.service import register_user, login_user
 from server.src.auth.schemas import RegisterUser, AccessTokenPayload
+from server.src.auth.utils import refresh_token
+from server.src.auth.dependencies import user_dependency
 from server.src.auth import exceptions
 from server.src.security.jwt import create_access_token, create_refresh_token
 from server.src.database import db_dependency
 from server.src.config import settings
-from server.src.auth.dependencies import user_dependency
 
 
 router = APIRouter(
@@ -88,6 +89,32 @@ async def login(
         value=refresh_token,
     )
     return response
+
+
+@router.post('/refresh-token')
+async def refresh_access_token(
+    db: db_dependency,
+    token: str = Cookie(
+        default=None,
+        alias=settings.JWT_REFRESH_TOKEN_COOKIE_NAME,
+    ),
+):
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Refresh token missing',
+        )
+    new_access_token = await refresh_token(db, token)
+    response = JSONResponse(
+        content={'msg': 'Token successfully refreshed'},
+        status_code=status.HTTP_200_OK,
+    )
+    response.set_cookie(
+        key=settings.JWT_ACCESS_TOKEN_COOKIE_NAME,
+        value=new_access_token,
+    )
+    return response
+    
 
 
 @router.get('/is-authorized', status_code=status.HTTP_200_OK)
