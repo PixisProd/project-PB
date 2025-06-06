@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from server.src.database import create_tables, drop_tables
-from server.src import router
+from server.src import router, init_handlers
 
 
 @asynccontextmanager
@@ -17,4 +17,5 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+init_handlers(app)
 app.include_router(router)

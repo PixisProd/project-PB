@@ -1,6 +1,6 @@
 import datetime
 
-from fastapi import APIRouter, HTTPException, status, Depends, Cookie
+from fastapi import APIRouter, status, Depends, Cookie
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -22,19 +22,13 @@ router = APIRouter(
 
 @router.post('/registration', status_code=status.HTTP_201_CREATED)
 async def registration(db: db_dependency, user: RegisterUser) -> None:
-    try:
-        await register_user(
-            login=user.login,
-            password=user.password,
-            username=user.username,
-            email=user.email,
-            db=db
-        )
-    except exceptions.UserAlreadyExistsException as e:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=str(e),
-        )
+    await register_user(
+        login=user.login,
+        password=user.password,
+        username=user.username,
+        email=user.email,
+        db=db
+    )
     return JSONResponse(
         content={'msg': 'User successfully registered'},
         status_code=status.HTTP_201_CREATED,
@@ -46,22 +40,11 @@ async def login(
     db: db_dependency,
     credentials: OAuth2PasswordRequestForm = Depends(OAuth2PasswordRequestForm),
 ) -> None:
-    try:
-        user = await login_user(
-            login=credentials.username,
-            password=credentials.password,
-            db=db,
-        )
-    except exceptions.IncorrectCredentialsException as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=str(e),
-        )
-    except exceptions.DeactivatedUserException as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=str(e),
-        )
+    user = await login_user(
+        login=credentials.username,
+        password=credentials.password,
+        db=db,
+    )
     now = datetime.datetime.now(datetime.UTC)
     access_token_payload = AccessTokenPayload(
         email=user.email,
@@ -100,10 +83,7 @@ async def refresh_access_token(
     ),
 ):
     if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Refresh token missing',
-        )
+        raise exceptions.MissingRefreshTokenException()
     new_access_token = await refresh_token(db, token)
     response = JSONResponse(
         content={'msg': 'Token successfully refreshed'},

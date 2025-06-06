@@ -1,7 +1,7 @@
 import datetime
 
 import jose
-from fastapi import Depends, Cookie, HTTPException, status
+from fastapi import Cookie
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from server.src.config import settings
@@ -18,22 +18,13 @@ async def verify_token(
         )
 ) -> dict:
     if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Missing access token',
-        )
+        raise exceptions.MissingRefreshTokenException()
     try:
         return await decode_token(token)
     except jose.exceptions.ExpiredSignatureError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Access token expired',
-        )
+        raise exceptions.ExpiredAccessTokenException()
     except jose.exceptions.JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Invalid access token',
-        )
+        raise exceptions.InvalidAccessTokenException()
     
     
 async def refresh_token(
@@ -43,27 +34,12 @@ async def refresh_token(
     try:
         payload = await decode_token(token)
     except jose.exceptions.ExpiredSignatureError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Refresh token expired',
-        )
+        raise exceptions.ExpiredRefreshTokenException()
     except jose.exceptions.JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Invalid refresh token',
-        )
-    try:
-        user = await get_user(user_id=int(payload.get('sub')), db=db)
-    except exceptions.UserNotFoundException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise exceptions.InvalidRefreshTokenException()
+    user = await get_user(user_id=int(payload.get('sub')), db=db)
     if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='User deactivated',
-        )
+        raise exceptions.DeactivatedUserException()
     now = datetime.datetime.now(datetime.UTC)
     new_access_token_payload = AccessTokenPayload(
         email=user.email,
@@ -75,4 +51,3 @@ async def refresh_token(
         payload=new_access_token_payload.model_dump()
     )
     return new_access_token
-    
