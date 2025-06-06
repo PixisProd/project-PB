@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     JWT_REFRESH_TOKEN_COOKIE_NAME: str
     JWT_REFRESH_TOKEN_LIFETIME: timedelta = timedelta(days=7)
 
+    ERROR_MESSAGE_KEY: str
+
     model_config = SettingsConfigDict(env_file='.env', extra='ignore')
 
 settings = Settings()
