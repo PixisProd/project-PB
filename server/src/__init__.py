@@ -1,6 +1,7 @@
 from fastapi import APIRouter, FastAPI
 
 from server.src.auth.router import router as auth_router
+from server.src.prompts.router import router as prompts_router
 from server.src.auth.handlers import init_handler as auth_handler
 
 
@@ -13,6 +14,7 @@ v1router = APIRouter(
 )
 
 v1router.include_router(auth_router)
+v1router.include_router(prompts_router)
 
 
 router.include_router(v1router)
