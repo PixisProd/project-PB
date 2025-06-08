@@ -5,7 +5,7 @@ from server.src.auth import exceptions
 from server.src.config import settings
 
 
-def init_handler(app: FastAPI):
+def init_handlers(app: FastAPI):
     @app.exception_handler(exceptions.TokenException)
     async def token_exception_handler(request: Request, exc: Exception):
         return JSONResponse(
@@ -14,10 +14,7 @@ def init_handler(app: FastAPI):
         )
     
     @app.exception_handler(exceptions.UserNotFoundException)
-    async def user_not_found_handler(
-        request: Request,
-        exc: Exception,
-    ):
+    async def user_not_found_handler(request: Request, exc: Exception):
         return JSONResponse(
             content={settings.ERROR_MESSAGE_KEY: str(exc)},
             status_code=status.HTTP_404_NOT_FOUND,
