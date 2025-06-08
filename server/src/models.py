@@ -58,7 +58,6 @@ class OrmPrompt(OrmBase):
     model: Mapped[str] = mapped_column(
         String(64),
         nullable=False,
-        default='Text',
     )
     use_case: Mapped[str] = mapped_column(
         String(100),
