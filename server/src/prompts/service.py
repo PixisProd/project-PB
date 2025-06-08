@@ -18,4 +18,15 @@ async def add_prompt(
     except Exception as e:
         await db.rollback()
         print(e)
+
+
+async def get_prompts(
+    db: AsyncSession,
+    user_id: int,
+):
+    query = select(OrmPrompt).where(OrmPrompt.user_id == user_id)
+    result = await db.execute(query)
+    prompts = result.scalars().all()
+    return prompts
+
     
