@@ -14,7 +14,7 @@ async def lifespan(app: FastAPI):
     await create_tables()
     logging.info('App ready')
     yield
-    await drop_tables()
+    # await drop_tables()
     logging.info('App shutdown')
 
 

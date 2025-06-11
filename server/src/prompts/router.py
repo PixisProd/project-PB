@@ -1,9 +1,10 @@
-from fastapi import APIRouter, status, Path
+from fastapi import APIRouter, status, Path, Query
 from fastapi.responses import JSONResponse
 
-from server.src.prompts.schemas import SPrompt
+from server.src.prompts.schemas import SPrompt, SPromptRender
 from server.src.prompts.service import (
-    add_prompt, get_prompts, get_prompt, soft_delete_prompt
+    add_prompt, get_prompts, get_prompt, soft_delete_prompt,
+    render_prompt,
 )
 from server.src.auth.dependencies import user_dependency
 from server.src.database import db_dependency
@@ -32,6 +33,26 @@ async def get_prompt_by_id(
         prompt_id=prompt_id,
     )
     return prompt
+
+
+@router.post('/render')
+async def render_prompt_by_id(
+    user: user_dependency,
+    db: db_dependency,
+    data: SPromptRender,
+):
+    rendered = await render_prompt(
+        db=db,
+        user_id=int(user.get('sub')),
+        prompt_id=data.prompt_id,
+        vars=data.vars
+    )
+    return JSONResponse(
+        content={
+            'msg': 'Successful render',
+            'prompt': rendered
+        }
+    )
 
 
 @router.post('/')
