@@ -1,10 +1,10 @@
 from fastapi import APIRouter, status, Path, Query
 from fastapi.responses import JSONResponse
 
-from server.src.prompts.schemas import SPrompt, SPromptRender
+from server.src.prompts.schemas import SPrompt, SPromptRender, SPromptUpdate
 from server.src.prompts.service import (
     add_prompt, get_prompts, get_prompt, soft_delete_prompt,
-    render_prompt,
+    render_prompt, update_prompt
 )
 from server.src.auth.dependencies import user_dependency
 from server.src.database import db_dependency
@@ -81,5 +81,19 @@ async def delete_prompt(
     await soft_delete_prompt(db, int(user.get('sub')), prompt_id)
     return JSONResponse(
         content={'msg': 'Prompt successfully deleted'},
+        status_code=status.HTTP_200_OK,
+    )
+
+
+@router.patch('/{prompt_id}')
+async def edit_prompt(
+    user: user_dependency,
+    db: db_dependency,
+    data: SPromptUpdate,
+    prompt_id: int = Path(gt=0),
+):
+    await update_prompt(db, int(user.get('sub')), prompt_id, data)
+    return JSONResponse(
+        content={'msg': 'Prompt successfully updated'},
         status_code=status.HTTP_200_OK,
     )

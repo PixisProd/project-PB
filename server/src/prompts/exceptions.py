@@ -2,6 +2,12 @@ class PromptNotFoundException(Exception):
     def __str__(self):
         return 'Prompt not found'
     
+
+class NoParametersException(Exception):
+    def __str__(self):
+        return 'At least one field to change the prompt'
+
+
 class PromptVarsExceptions(Exception):
     def __init__(self, vars: list = None):
         self.vars = vars
