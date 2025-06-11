@@ -18,7 +18,7 @@ async def add_prompt(
         await db.commit()
     except Exception as e:
         await db.rollback()
-        print(e)
+        raise
 
 
 async def get_prompts(
@@ -49,4 +49,4 @@ async def soft_delete_prompt(db: AsyncSession, user_id: int, prompt_id: int):
         await db.commit()
     except Exception as e:
         await db.rollback()
-        raise e
+        raise
