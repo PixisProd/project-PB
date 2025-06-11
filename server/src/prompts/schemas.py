@@ -1,6 +1,11 @@
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Any
 
 from pydantic import BaseModel, Field
+
+
+class SPromptRender(BaseModel):
+    prompt_id: int = Field(gt=0, description='ID of the prompt to render')
+    vars: Dict[str, str] = Field(..., description='Template variables for rendering')
 
 
 class SPrompt(BaseModel):
