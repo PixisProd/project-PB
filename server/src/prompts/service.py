@@ -4,6 +4,7 @@ from sqlalchemy import select
 from server.src.models import OrmPrompt
 from server.src.prompts.schemas import SPrompt
 from server.src.prompts import exceptions
+from server.src.jinja import parse_vars
 
 
 async def add_prompt(
@@ -13,6 +14,7 @@ async def add_prompt(
 ) -> None:
     prompt = OrmPrompt(**data.model_dump())
     prompt.user_id = user_id
+    prompt.variables = await parse_vars(prompt.content)
     db.add(prompt)
     try:
         await db.commit()
