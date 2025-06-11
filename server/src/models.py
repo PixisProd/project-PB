@@ -51,6 +51,12 @@ class OrmPrompt(OrmBase):
         default=False,
         server_default=text('false')
     )
+    is_deleted: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default=text('false')
+    )
     tags: Mapped[list[str]] = mapped_column(
         ARRAY(String),
         nullable=True,

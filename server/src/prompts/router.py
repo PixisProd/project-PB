@@ -2,7 +2,9 @@ from fastapi import APIRouter, status, Path
 from fastapi.responses import JSONResponse
 
 from server.src.prompts.schemas import SPrompt
-from server.src.prompts.service import add_prompt, get_prompts, get_prompt
+from server.src.prompts.service import (
+    add_prompt, get_prompts, get_prompt, soft_delete_prompt
+)
 from server.src.auth.dependencies import user_dependency
 from server.src.database import db_dependency
 
@@ -46,4 +48,17 @@ async def create_prompt(
     return JSONResponse(
         content={'msg': 'Prompt successfully created!'},
         status_code=status.HTTP_201_CREATED,
+    )
+
+
+@router.delete('/{prompt_id}')
+async def delete_prompt(
+    user: user_dependency,
+    db: db_dependency,
+    prompt_id: int = Path(gt=0),
+):
+    await soft_delete_prompt(db, int(user.get('sub')), prompt_id)
+    return JSONResponse(
+        content={'msg': 'Prompt successfully deleted'},
+        status_code=status.HTTP_200_OK,
     )
