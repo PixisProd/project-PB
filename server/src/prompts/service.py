@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from server.src.models import OrmPrompt
-from server.src.prompts.schemas import SPrompt
+from server.src.models import OrmPrompt, OrmPromptHistory, OrmPromptMixin
+from server.src.prompts.schemas import SPrompt, SPromptUpdate
 from server.src.prompts import exceptions
 from server.src.jinja import parse_vars, render_template
 
@@ -65,11 +65,58 @@ async def get_prompt(db: AsyncSession, user_id: int, prompt_id: int):
     raise exceptions.PromptNotFoundException()
 
 
+async def save_prompt(db: AsyncSession, prompt: OrmPrompt):
+    fields = OrmPromptMixin.__annotations__.keys()
+    base_data = {}
+    for field in fields:
+        base_data[field] = getattr(prompt, field)
+    history = OrmPromptHistory(**base_data)
+    history.prompt_id = prompt.id
+    result = await db.execute(
+        select(OrmPromptHistory)
+        .where(OrmPromptHistory.prompt_id == history.prompt_id)
+        .order_by(OrmPromptHistory.version.desc())
+        .limit(1)
+    )
+    last_version = result.scalar_one_or_none()
+    history.version = (last_version.version + 1) if last_version else 1
+    db.add(history)
+    try:
+        await db.commit()
+    except Exception:
+        await db.rollback()
+        raise
+    
+
+async def update_prompt(
+    db: AsyncSession, 
+    user_id: int, 
+    prompt_id: int,
+    data: SPromptUpdate,
+):
+    vals = data.model_dump(exclude_unset=True)
+    if not vals:
+        raise exceptions.NoParametersException()
+
+    prompt = await get_prompt(db, user_id, prompt_id)
+    await save_prompt(db, prompt)
+    for key, value in vals.items():
+        setattr(prompt, key, value)
+
+    if 'content' in vals:
+        prompt.variables = await parse_vars(prompt.content)
+    try:
+        await db.commit()
+    except Exception:
+        await db.rollback()
+        raise
+
+
 async def soft_delete_prompt(db: AsyncSession, user_id: int, prompt_id: int):
     prompt = await get_prompt(db, user_id, prompt_id)
     prompt.is_deleted = True
     try:
         await db.commit()
-    except Exception as e:
+    except Exception:
         await db.rollback()
         raise

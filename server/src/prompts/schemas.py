@@ -3,6 +3,15 @@ from typing import Optional, Dict, List, Any
 from pydantic import BaseModel, Field
 
 
+class SPromptUpdate(BaseModel):
+    title: Optional[str] = Field(None, min_length=1, max_length=48)
+    content: Optional[str] = Field(None, min_length=1)
+    is_public: bool = None
+    tags: Optional[List[str]] = None
+    model: Optional[str] = None
+    use_case: Optional[str] = Field(None, min_length=1, max_length=100)
+
+
 class SPromptRender(BaseModel):
     prompt_id: int = Field(gt=0, description='ID of the prompt to render')
     vars: Dict[str, str] = Field(..., description='Template variables for rendering')
