@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@layer base {
+  button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+
+@theme {
+  --color-pbwhite: #e4e4e7;
+  --color-bluelink: #2181FF;
+  --color-pbblack: #0b0b0f;
+  --color-pbgray: #1A1A1F;
+  --color-phtext: #4F4F51;
+}
