@@ -6,6 +6,10 @@
   border-[#2C2C35] rounded-2xl;
 }
 
+.pb-link {
+  @apply transition hover:text-blue-600 text-bluelink;
+}
+
 .white-button {
   @apply cursor-pointer hover:opacity-85 transition bg-pbwhite rounded-xl 
   px-2.5 py-2.5 mx-auto block;
