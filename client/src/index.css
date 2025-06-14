@@ -1,12 +1,15 @@
 @import "tailwindcss";
 
-@layer base {
-  button {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
+.place-holder {
+  @apply placeholder:text-phtext bg-pbgray px-5 py-1.5 focus:border-white
+  transition duration-300 focus:outline-none text-pbwhite border 
+  border-[#2C2C35] rounded-2xl;
 }
 
+.white-button {
+  @apply cursor-pointer hover:opacity-85 transition bg-pbwhite rounded-xl 
+  px-2.5 py-2.5 mx-auto block;
+}
 
 @theme {
   --color-pbwhite: #e4e4e7;
