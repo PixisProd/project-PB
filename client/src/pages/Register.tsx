@@ -6,19 +6,19 @@ function Register() {
           <h1 className="text-pbwhite font-bold text-2xl mb-">Create a PromptBox Account</h1>
           <p className="mb-[30px] text-pbwhite text-base">Hey there, already with us? <a href="/" className="transition hover:text-blue-600 text-bluelink">Log In</a></p>
         </div>
-        <div>
-          <label htmlFor="email" className="mb-[10px] text-pbwhite text-sm flex flex-col">
+        <div className="flex flex-col">
+          <label htmlFor="email" className="mb-2.5 text-pbwhite text-sm">
             Email
           </label>
-          <input className="focus:border-white transition duration-300 focus:outline-none mb-[20px] text-pbwhite w-full max-w-[366px] max-y-[40px] border border-[#2C2C35] rounded-2xl px-5 py-1.5 placeholder:text-phtext bg-pbgray" id="email" type="text" placeholder="pixis@magic.com" />
+          <input className="place-holder mb-5" id="email" type="text" placeholder="pixis@magic.com" />
         </div>
-        <div>
-          <label htmlFor="password" className="mb-[10px] text-pbwhite text-sm flex flex-col">
+        <div className="flex flex-col">
+          <label htmlFor="password" className="mb-2.5 text-pbwhite text-sm">
             Password
           </label>
-          <input className="focus:border-white transition duration-300 focus:outline-none mb-[20px] text-pbwhite w-full max-w-[366px] max-y-[40px] border border-[#2C2C35] rounded-2xl px-5 py-1.5 placeholder:text-phtext bg-pbgray" id="password" type="password" placeholder="qwerty123" />
+          <input className="place-holder mb-7" id="password" type="password" placeholder="qwerty123" />
         </div>
-        <button type="submit" className="cursor-pointer hover:bg-gray-300 transition bg-pbwhite rounded-xl px-2.5 py-2.5 w-full mx-auto max-w-[366px] max-h-[50px] block">
+        <button type="submit" className="white-button w-full">
           Continue
         </button>
       </div>
