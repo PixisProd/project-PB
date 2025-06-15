@@ -22,3 +22,18 @@
   --color-pbgray: #1A1A1F;
   --color-phtext: #4F4F51;
 }
+
+@keyframes slide-up-fade {
+  0% {
+    opacity: 0;
+    transform: translateY(80px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up-fade {
+  animation: slide-up-fade 1s ease-in-out forwards;
+}
