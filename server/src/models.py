@@ -95,10 +95,10 @@ class OrmUser(OrmBase):
         String(64),
         index=True,
         unique=True,
-        nullable=False,
+        nullable=True,
     )
     password: Mapped[str] = mapped_column(String(64), nullable=False)
-    username: Mapped[str] = mapped_column(String(64), nullable=False)
+    username: Mapped[str] = mapped_column(String(64), nullable=True)
     email: Mapped[str] = mapped_column(
         String(64),
         index=True,

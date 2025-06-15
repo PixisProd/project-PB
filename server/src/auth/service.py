@@ -5,6 +5,7 @@ from sqlalchemy import select
 from server.src.security.bcrypt import bcrypt_context
 from server.src.models import OrmUser
 from server.src.auth import exceptions
+from server.src.auth.schemas import RegisterUser, LoginUser
 
 
 async def get_user(user_id: int, db: AsyncSession) -> OrmUser:
@@ -17,19 +18,11 @@ async def get_user(user_id: int, db: AsyncSession) -> OrmUser:
 
 
 async def register_user(
-    login: str, 
-    password: str, 
-    username: str, 
-    email: str,
-    db: AsyncSession
+    user: RegisterUser,
+    db: AsyncSession,
 ) -> None:
-    hashed_password = bcrypt_context.hash(password)
-    db.add(OrmUser(
-        login=login,
-        password=hashed_password,
-        username=username,
-        email=email,
-    ))
+    user.password = bcrypt_context.hash(user.password)
+    db.add(OrmUser(**user.model_dump()))
     try:
         await db.commit()
     except IntegrityError:
@@ -38,14 +31,13 @@ async def register_user(
     
 
 async def login_user(
-    login: str,
-    password: str,
-    db: AsyncSession
+    credentials: LoginUser,
+    db: AsyncSession,
 ) -> OrmUser:
-    query = select(OrmUser).where(OrmUser.login == login)
+    query = select(OrmUser).where(OrmUser.email == credentials.email)
     result = await db.execute(query)
     user = result.scalar_one_or_none()
-    if not user or not bcrypt_context.verify(password, user.password):
+    if not user or not bcrypt_context.verify(credentials.password, user.password):
         raise exceptions.IncorrectCredentialsException()
     if not user.is_active:
         raise exceptions.DeactivatedUserException()

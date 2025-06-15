@@ -2,10 +2,11 @@ import datetime
 
 from fastapi import APIRouter, status, Depends, Cookie
 from fastapi.responses import JSONResponse
-from fastapi.security import OAuth2PasswordRequestForm
 
-from server.src.auth.service import register_user, login_user
-from server.src.auth.schemas import RegisterUser, AccessTokenPayload
+from server.src.auth.service import register_user, login_user, get_user
+from server.src.auth.schemas import (
+    RegisterUser, AccessTokenPayload, LoginUser
+)
 from server.src.auth.utils import refresh_token
 from server.src.auth.dependencies import user_dependency
 from server.src.auth import exceptions
@@ -22,29 +23,24 @@ router = APIRouter(
 
 @router.post('/registration', status_code=status.HTTP_201_CREATED)
 async def registration(db: db_dependency, user: RegisterUser) -> None:
-    await register_user(
-        login=user.login,
-        password=user.password,
-        username=user.username,
-        email=user.email,
-        db=db
-    )
+    await register_user(user, db)
     return JSONResponse(
         content={'msg': 'User successfully registered'},
         status_code=status.HTTP_201_CREATED,
     )
 
 
+@router.get('/about')
+async def about_user(user: user_dependency, db: db_dependency):
+    return await get_user(int(user.get('sub')), db)
+
+
 @router.post('/login', status_code=status.HTTP_200_OK)
 async def login(
     db: db_dependency,
-    credentials: OAuth2PasswordRequestForm = Depends(OAuth2PasswordRequestForm),
+    credentials: LoginUser,
 ) -> None:
-    user = await login_user(
-        login=credentials.username,
-        password=credentials.password,
-        db=db,
-    )
+    user = await login_user(credentials, db)
     now = datetime.datetime.now(datetime.UTC)
     access_token_payload = AccessTokenPayload(
         email=user.email,
