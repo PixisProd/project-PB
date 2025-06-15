@@ -2,9 +2,8 @@ import datetime
 
 from fastapi import APIRouter, status, Depends, Cookie
 from fastapi.responses import JSONResponse
-from fastapi.security import OAuth2PasswordRequestForm
 
-from server.src.auth.service import register_user, login_user
+from server.src.auth.service import register_user, login_user, get_user
 from server.src.auth.schemas import (
     RegisterUser, AccessTokenPayload, LoginUser
 )
@@ -29,6 +28,11 @@ async def registration(db: db_dependency, user: RegisterUser) -> None:
         content={'msg': 'User successfully registered'},
         status_code=status.HTTP_201_CREATED,
     )
+
+
+@router.get('/about')
+async def about_user(user: user_dependency, db: db_dependency):
+    return await get_user(int(user.get('sub')), db)
 
 
 @router.post('/login', status_code=status.HTTP_200_OK)
