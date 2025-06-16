@@ -4,17 +4,14 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
 import Login from './pages/Login.tsx';
 import Register from './pages/Register.tsx';
-
-
-
-import Aboutt from './pages/aboutt.tsx'
+import Dashboard from './pages/Dashboard.tsx';
 
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path='/about' element={<Aboutt />}/>
+        <Route path='/dashboard' element={<Dashboard />}/>
         <Route path='/register' element={<Register />}/>
         <Route path='/login' element={<Login />}/>
       </Routes>
