@@ -26,7 +26,7 @@ function Register() {
         password,
       });
       console.log('Successful reg', regResponse.data)
-      navigate('/about')
+      navigate('/dashboard')
     } catch (err: any) {
       if (err.response) {
         setError(err.response.data.msg || err.response.data.detail[0].ctx.reason || 'Something went wrong');
@@ -46,7 +46,7 @@ function Register() {
     <div className="min-h-screen flex items-center justify-center bg-pbblack px-2.5">
       <form onSubmit={handleSubmit} className="animate-slide-up-fade text-left flex flex-col w-full h-full max-h-[316] max-w-[366px]">
         <div>
-          <h1 className="text-pbwhite font-bold text-2xl mb-">Create a PromptBox Account</h1>
+          <h1 className="text-pbwhite font-bold text-2xl mb-0.5">Create a PromptBox Account</h1>
           <p className="mb-[30px] text-pbwhite text-base">Hey there, already with us? <Link to="/login" className='pb-link'>Log In</Link></p>
         </div>
         <div className="flex flex-col">
