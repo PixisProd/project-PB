@@ -21,7 +21,7 @@ function Register() {
         password,
       });
       console.log('Successful login', response.data);
-      navigate('/about')
+      navigate('/dashboard')
     } catch (err: any) {
       if (err.response) {
         setError(err.response.data.msg || err.response.data.detail[0].ctx.reason || 'Something went wrong');
@@ -42,7 +42,7 @@ function Register() {
     <div className="min-h-screen flex items-center justify-center bg-pbblack px-2.5">
       <form onSubmit={handleSubmit} className="animate-slide-up-fade  text-left flex flex-col w-full h-full max-h-[316] max-w-[366px]">
         <div>
-          <h1 className="text-pbwhite font-bold text-2xl mb-">Log in to PromptBox</h1>
+          <h1 className="text-pbwhite font-bold text-2xl mb-0.5">Log in to PromptBox</h1>
           <p className="mb-[30px] text-pbwhite text-base">Don't have an account? <Link to="/register" className="pb-link">Create one</Link></p>
         </div>
         <div className="flex flex-col">
