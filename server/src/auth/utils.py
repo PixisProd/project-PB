@@ -14,7 +14,7 @@ from server.src.security.jwt import decode_token, create_access_token
 async def verify_token(
         token: str = Cookie(
             default=None,
-            alias=settings.JWT_ACCESS_TOKEN_COOKIE_NAME,
+            alias=settings.jwt.access_token_cookie_name,
         )
 ) -> dict:
     if not token:
@@ -43,7 +43,8 @@ async def refresh_token(
     now = datetime.datetime.now(datetime.UTC)
     new_access_token_payload = AccessTokenPayload(
         email=user.email,
-        role=user.role
+        role=user.role,
+        plan=user.plan,
     )
     new_access_token = await create_access_token(
         user_id=user.id,

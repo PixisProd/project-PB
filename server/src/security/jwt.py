@@ -20,8 +20,8 @@ async def create_token(
         temp_payload.update(payload)
     return jwt.encode(
         claims=temp_payload,
-        key=settings.JWT_SECRET_KEY.get_secret_value(),
-        algorithm=settings.JWT_ALGORITHM,
+        key=settings.jwt.secret_key.get_secret_value(),
+        algorithm=settings.jwt.algorithm,
     )
 
 async def create_access_token(
@@ -32,7 +32,7 @@ async def create_access_token(
     return await create_token(
         user_id=user_id,
         now=now,
-        lifetime=settings.JWT_ACCESS_TOKEN_LIFETIME,
+        lifetime=settings.jwt.access_token_lifetime,
         payload=payload,
     )
 
@@ -43,12 +43,12 @@ async def create_refresh_token(
     return await create_token(
         user_id=user_id,
         now=now,
-        lifetime=settings.JWT_REFRESH_TOKEN_LIFETIME,
+        lifetime=settings.jwt.refresh_token_lifetime,
     )
 
 async def decode_token(token: str) -> dict:
     return jwt.decode(
         token=token,
-        key=settings.JWT_SECRET_KEY.get_secret_value(),
-        algorithms=settings.JWT_ALGORITHM,
+        key=settings.jwt.secret_key.get_secret_value(),
+        algorithms=settings.jwt.algorithm,
     )
