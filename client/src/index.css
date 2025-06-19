@@ -17,13 +17,14 @@
 
 .temp-prompt-card {
   @apply h-[250px] w-[200px]  bg-pbgray border 
-  border-pbborder rounded-2xl;
+  border-pbborder rounded-2xl hover:border hover:border-pbwhite transition;
 }
+
 
 .side-menu-button {
   @apply shadow-[0_4px_20px_rgba(0,0,0,0.6)] flex items-center gap-2.5 
-  cursor-pointer w-full transition bg-pbblack hover:scale-[102%] 
-  hover:brightness-150 px-3 h-12 text-lg rounded-2xl;
+  cursor-pointer w-full transition bg-pbblack hover:text-pbblack hover:bg-pbwhite
+  px-3 h-12 text-lg rounded-2xl border border-pbborder;
 }
 
 @theme {
