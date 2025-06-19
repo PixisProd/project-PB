@@ -12,3 +12,4 @@ class LoginUser(RegisterUser):
 class AccessTokenPayload(BaseModel):
     email: str
     role: str
+    plan: str

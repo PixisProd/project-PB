@@ -11,7 +11,7 @@ from server.src.config import settings
 from server.src.models import OrmBase
 
 
-DATABASE_URL_PARAMETERS = f'{settings.PG_USER.get_secret_value()}:{settings.PG_PASSWORD.get_secret_value()}@{settings.PG_HOST}/{settings.PG_DATABASE_NAME}'
+DATABASE_URL_PARAMETERS = f'{settings.db.user.get_secret_value()}:{settings.db.password.get_secret_value()}@{settings.db.host}/{settings.db.name}'
 DATABASE_URL = f'postgresql+asyncpg://{DATABASE_URL_PARAMETERS}'
 
 
