@@ -8,6 +8,7 @@ from server.src.prompts.service import (
 )
 from server.src.auth.dependencies import user_dependency
 from server.src.database import db_dependency
+from server.src.subscription_manager import sub_manager_depc
 
 
 router = APIRouter(
@@ -57,11 +58,14 @@ async def render_prompt_by_id(
 
 @router.post('/')
 async def create_prompt(
+    sub_manager: sub_manager_depc,
     prompt_data: SPrompt,
     user: user_dependency,
     db: db_dependency,
 ):
     await add_prompt(
+        sub_manager=sub_manager,
+        plan=user.get('plan'),
         db=db,
         user_id=int(user.get('sub')),
         data=prompt_data,

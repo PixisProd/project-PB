@@ -21,10 +21,23 @@ class JWTSettings(BaseSettings):
     refresh_token_cookie_name: str
     refresh_token_lifetime: timedelta = timedelta(days=7)
 
+class SubPlanSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix='SUB_')
+    trial_max_prompts: int
+    basic_max_prompts: int
+    standard_max_prompts: int
+    premium_max_prompts: int
+    trial_versions_limit: int
+    basic_versions_limit: int
+    standard_versions_limit: int
+    premium_versions_limit: int
+    
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file='.env', extra='ignore')
     db: DatabaseSettings = Field(default_factory=DatabaseSettings)
     jwt: JWTSettings = Field(default_factory=JWTSettings)
+    sub: SubPlanSettings = Field(default_factory=SubPlanSettings)
 
     ERROR_MESSAGE_KEY: str
 

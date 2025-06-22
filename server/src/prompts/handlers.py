@@ -19,3 +19,10 @@ def init_handlers(app: FastAPI):
             content={settings.ERROR_MESSAGE_KEY: str(exc)},
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         )
+    
+    @app.exception_handler(exceptions.SubException)
+    async def sub_handler(request: Request, exc: Exception):
+        return JSONResponse(
+            content={settings.ERROR_MESSAGE_KEY: str(exc)},
+            status_code=status.HTTP_403_FORBIDDEN,
+        )

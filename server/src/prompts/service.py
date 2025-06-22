@@ -1,10 +1,24 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 
-from server.src.models import OrmPrompt, OrmPromptHistory, OrmPromptMixin
+from server.src.models import (
+    OrmPrompt, OrmPromptHistory, OrmPromptMixin, SubPlans
+)
 from server.src.prompts.schemas import SPrompt, SPromptUpdate
 from server.src.prompts import exceptions
 from server.src.jinja import parse_vars, render_template
+from server.src.subscription_manager import SubscriptionManager
+
+
+async def count_prompts(db: AsyncSession, user_id: int):
+    stmt = await db.execute(
+        select(func.count()).select_from(OrmPrompt)
+        .where(
+            OrmPrompt.user_id == user_id,
+            OrmPrompt.is_deleted == False,
+        )
+    )
+    return stmt.scalar_one_or_none()
 
 
 async def render_prompt(
@@ -29,10 +43,16 @@ async def render_prompt(
 
 
 async def add_prompt(
+    sub_manager: SubscriptionManager,
+    plan: SubPlans,
     db: AsyncSession,
     user_id: int,
     data: SPrompt,
 ) -> None:
+    user_plan = await sub_manager.get_plan_info(plan)
+    user_prompts = await count_prompts(db, user_id)
+    if user_prompts >= user_plan.max_prompts:
+        raise exceptions.PromptLimitReachedException()
     prompt = OrmPrompt(**data.model_dump())
     prompt.user_id = user_id
     prompt.variables = await parse_vars(prompt.content)

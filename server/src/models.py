@@ -84,6 +84,7 @@ class Roles(StrEnum):
     admin = 'admin'
 
 class SubPlans(StrEnum):
+    trial = 'trial'
     basic = 'basic'
     standard = 'standard'
     premium = 'premium'
@@ -119,8 +120,8 @@ class OrmUser(OrmBase):
     plan: Mapped[SubPlans] = mapped_column(
         Enum(SubPlans),
         nullable=False,
-        default=SubPlans.basic,
-        server_default=text(f"'{SubPlans.basic}'")
+        default=SubPlans.trial,
+        server_default=text(f"'{SubPlans.trial}'")
     )
     is_active: Mapped[bool] = mapped_column(
         Boolean,
