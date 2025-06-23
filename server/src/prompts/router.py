@@ -91,12 +91,13 @@ async def delete_prompt(
 
 @router.patch('/{prompt_id}')
 async def edit_prompt(
+    sub_manager: sub_manager_depc,
     user: user_dependency,
     db: db_dependency,
     data: SPromptUpdate,
     prompt_id: int = Path(gt=0),
 ):
-    await update_prompt(db, int(user.get('sub')), prompt_id, data)
+    await update_prompt(sub_manager, user.get('plan'), db, int(user.get('sub')), prompt_id, data)
     return JSONResponse(
         content={'msg': 'Prompt successfully updated'},
         status_code=status.HTTP_200_OK,
