@@ -16,6 +16,21 @@ class SPromptRender(BaseModel):
     prompt_id: int = Field(gt=0, description='ID of the prompt to render')
     vars: Dict[str, str] = Field(..., description='Template variables for rendering')
 
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "prompt_id": 1,
+                "vars": {
+                    "target_audience": "CEOs",
+                    "features": "Lots of cloud space, good prices",
+                    "product_name": "PromptBox",
+                    "tone": "Productive",
+                    "call_to_action": "Let's be a partners",
+                },
+            }
+        }
+    }
+
 
 class SPrompt(BaseModel):
     title: str = Field(min_length=1, max_length=48, examples=['Product Desc'])
