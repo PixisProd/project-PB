@@ -16,8 +16,7 @@
 }
 
 .temp-prompt-card {
-  @apply h-[250px] w-[200px]  bg-pbgray border 
-  border-pbborder rounded-2xl hover:border hover:border-pbwhite transition;
+  @apply h-[250px] w-[200px]  bg-pbgray border border-pbborder rounded-2xl hover:border hover:border-pbwhite transition;
 }
 
 
