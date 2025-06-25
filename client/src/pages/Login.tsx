@@ -57,7 +57,7 @@ function Register() {
           </label>
           <div className="relative">
             <input value={password} onChange={(e) => setPassword(e.target.value)} className="w-full place-holder mb-7" id="password" type={showPassword ? "text" : "password"} placeholder="••••••••••" />
-            <button  className="absolute right-4 top-[19px] cursor-pointer -translate-y-1/2 hover:opacity-85 transition" onClick={togglePassword} type="button">
+            <button  className="absolute right-4 top-[19px] cursor-pointer -translate-y-1/2 hover:brightness-85 transition" onClick={togglePassword} type="button">
               <PasswordToggleIcon visible={showPassword}></PasswordToggleIcon>
             </button>
           </div>

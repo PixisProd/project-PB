@@ -49,7 +49,12 @@ class SPrompt(BaseModel):
         default=None,
         examples=[['marketing', 'project']],
     )
-    model: str = Field(default='Text', examples=['GPT-4'])
+    model: str = Field(
+        min_length=1, 
+        max_length=10,
+        default='Text', 
+        examples=['GPT-4'],
+    )
     use_case: Optional[str] = Field(
         default=None, 
         min_length=1, 
