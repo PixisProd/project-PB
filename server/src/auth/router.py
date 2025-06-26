@@ -45,6 +45,7 @@ async def login(
     access_token_payload = AccessTokenPayload(
         email=user.email,
         role=user.role,
+        plan=user.plan,
     )
     access_token = await create_access_token(
         user_id=user.id,
@@ -60,11 +61,11 @@ async def login(
         status_code=status.HTTP_200_OK,
     )
     response.set_cookie(
-        key=settings.JWT_ACCESS_TOKEN_COOKIE_NAME,
+        key=settings.jwt.access_token_cookie_name,
         value=access_token,
     )
     response.set_cookie(
-        key=settings.JWT_REFRESH_TOKEN_COOKIE_NAME,
+        key=settings.jwt.refresh_token_cookie_name,
         value=refresh_token,
     )
     return response
@@ -75,7 +76,7 @@ async def refresh_access_token(
     db: db_dependency,
     token: str = Cookie(
         default=None,
-        alias=settings.JWT_REFRESH_TOKEN_COOKIE_NAME,
+        alias=settings.jwt.refresh_token_cookie_name,
     ),
 ):
     if not token:
@@ -86,7 +87,7 @@ async def refresh_access_token(
         status_code=status.HTTP_200_OK,
     )
     response.set_cookie(
-        key=settings.JWT_ACCESS_TOKEN_COOKIE_NAME,
+        key=settings.jwt.access_token_cookie_name,
         value=new_access_token,
     )
     return response

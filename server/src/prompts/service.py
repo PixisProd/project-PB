@@ -1,11 +1,56 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+import logging
 
-from server.src.models import OrmPrompt, OrmPromptHistory, OrmPromptMixin
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, func
+
+from server.src.models import (
+    OrmPrompt, OrmPromptHistory, OrmPromptMixin, SubPlans
+)
 from server.src.prompts.schemas import SPrompt, SPromptUpdate
 from server.src.prompts import exceptions
 from server.src.jinja import parse_vars, render_template
+from server.src.subscription_manager import SubscriptionManager
 
+
+logger = logging.getLogger(__name__)
+
+
+async def count_prompts(db: AsyncSession, user_id: int):
+    stmt = await db.execute(
+        select(func.count()).select_from(OrmPrompt)
+        .where(
+            OrmPrompt.user_id == user_id,
+            OrmPrompt.is_deleted == False,
+        )
+    )
+    return stmt.scalar_one_or_none()
+
+
+async def count_versions(db: AsyncSession, prompt_id: int):
+    stmt = await db.execute(
+        select(func.count()).select_from(OrmPromptHistory)
+        .where(
+            OrmPromptHistory.prompt_id == prompt_id,
+        )
+    )
+    return stmt.scalar_one_or_none()
+
+
+async def delete_prompt_oldest_version(db: AsyncSession, prompt_id: int):
+    oldest_ver = (await db.execute(
+        select(OrmPromptHistory)
+        .where(OrmPromptHistory.prompt_id == prompt_id)
+        .order_by(OrmPromptHistory.version.asc())
+        .limit(1)
+    )).scalar_one_or_none()
+    if oldest_ver:
+        await db.delete(oldest_ver)
+        try:
+            await db.commit()
+        except Exception:
+            logger.error('Error while trying to delete last version of prompt')
+            await db.rollback()
+            raise
 
 async def render_prompt(
     db: AsyncSession,
@@ -29,17 +74,23 @@ async def render_prompt(
 
 
 async def add_prompt(
+    sub_manager: SubscriptionManager,
+    plan: SubPlans,
     db: AsyncSession,
     user_id: int,
     data: SPrompt,
 ) -> None:
+    user_plan = await sub_manager.get_plan_info(plan)
+    user_prompts = await count_prompts(db, user_id)
+    if user_prompts >= user_plan.max_prompts:
+        raise exceptions.PromptLimitReachedException()
     prompt = OrmPrompt(**data.model_dump())
     prompt.user_id = user_id
     prompt.variables = await parse_vars(prompt.content)
     db.add(prompt)
     try:
         await db.commit()
-    except Exception as e:
+    except Exception:
         await db.rollback()
         raise
 
@@ -89,6 +140,8 @@ async def save_prompt(db: AsyncSession, prompt: OrmPrompt):
     
 
 async def update_prompt(
+    sub_manager: SubscriptionManager,
+    plan: SubPlans,
     db: AsyncSession, 
     user_id: int, 
     prompt_id: int,
@@ -97,9 +150,13 @@ async def update_prompt(
     vals = data.model_dump(exclude_unset=True)
     if not vals:
         raise exceptions.NoParametersException()
-
+    user_plan = await sub_manager.get_plan_info(plan)
+    prompt_versions_count = await count_versions(db, prompt_id)
     prompt = await get_prompt(db, user_id, prompt_id)
-    await save_prompt(db, prompt)
+    if user_plan.max_versions > 0:
+        if prompt_versions_count >= user_plan.max_versions:
+            await delete_prompt_oldest_version(db, prompt_id)
+        await save_prompt(db, prompt)
     for key, value in vals.items():
         setattr(prompt, key, value)
 

@@ -27,3 +27,11 @@ class ExtraPromptVariablesException(PromptVarsExceptions):
     def __init__(self, vars: list = None):
         super().__init__(vars)
         self.message = 'Unexpected variables'
+
+
+class SubException(Exception):
+    pass
+
+class PromptLimitReachedException(SubException):
+    def __str__(self):
+        return 'Prompt limit reached for your subscription'

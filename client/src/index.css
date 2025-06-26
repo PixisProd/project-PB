@@ -3,7 +3,7 @@
 .place-holder {
   @apply placeholder:text-phtext bg-pbgray px-5 py-1.5 focus:border-white
   transition duration-300 focus:outline-none text-pbwhite border 
-  border-[#2C2C35] rounded-2xl;
+  border-pbborder rounded-2xl;
 }
 
 .pb-link {
@@ -15,12 +15,24 @@
   px-2.5 py-2.5 mx-auto block;
 }
 
+.temp-prompt-card {
+  @apply h-[250px] w-[200px]  bg-pbgray border border-pbborder rounded-2xl hover:border hover:border-pbwhite transition;
+}
+
+
+.side-menu-button {
+  @apply shadow-[0_4px_20px_rgba(0,0,0,0.6)] flex items-center gap-2.5 
+  cursor-pointer w-full transition bg-pbblack hover:text-pbblack hover:bg-pbwhite
+  px-3 h-12 text-lg rounded-2xl border border-pbborder;
+}
+
 @theme {
   --color-pbwhite: #e4e4e7;
   --color-bluelink: #2181FF;
   --color-pbblack: #0b0b0f;
   --color-pbgray: #1A1A1F;
   --color-phtext: #4F4F51;
+  --color-pbborder: #2C2C35;
 }
 
 @keyframes slide-up-fade {
@@ -33,6 +45,7 @@
     transform: translateY(0);
   }
 }
+
 
 .animate-slide-up-fade {
   animation: slide-up-fade 1s ease-in-out forwards;
