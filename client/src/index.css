@@ -11,7 +11,7 @@
 }
 
 .white-button {
-  @apply cursor-pointer hover:opacity-85 transition bg-pbwhite rounded-xl 
+  @apply cursor-pointer hover:brightness-85 transition bg-pbwhite rounded-xl 
   px-2.5 py-2.5 mx-auto block;
 }
 
