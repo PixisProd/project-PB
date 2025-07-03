@@ -1,0 +1,26 @@
+version: '3.8'
+#in development
+services:
+  db:
+    image: postgres:14
+    container_name: postgres_db
+    environment:
+      - POSTGRES_USER=promptbox
+      - POSTGRES_PASSWORD=qwerty123
+      - POSTGRES_DB=promptbox
+    env_file:
+      - .env 
+    restart: unless-stopped
+
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: promptbox_server
+    ports:
+      - '8000:8000'
+    depends_on:
+      - db
+    env_file:
+      - .env
+    restart: unless-stopped
